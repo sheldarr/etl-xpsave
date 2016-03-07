@@ -13,6 +13,10 @@ function et.G_Printf(...)
     et.G_Print(string.format(...))
 end
 
+function sendMessageToClient(clientNumber, message, ...)
+    et.trap_SendServerCommand(tonumber(clientNumber), 'cpm\"' .. string.format(message, ...) .. '\n\"')
+end
+
 function et_InitGame(levelTime, randomSeed, restart)
     et.G_Printf('et_InitGame [%d] [%d] [%d]\n', levelTime, randomSeed, restart)
     et.RegisterModname(MOD_NAME)
@@ -43,11 +47,14 @@ function et_ClientConnect(clientNumber, firstTime, isBot)
 end
 
 function et_ClientDisconnect(clientNumber)
-       et.G_Printf( 'et_ClientDisconnect: [%d]\n', clientNumber)
+    et.G_Printf( 'et_ClientDisconnect: [%d]\n', clientNumber)
 end
 
 function et_ClientBegin(clientNumber)
-       et.G_Printf( 'et_ClientBegin: [%d]\n', clientNumber )
+    local clientName = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name")
+
+    et.G_Printf( 'et_ClientBegin: [%d] %s\n', clientNumber, clientName)
+    sendMessageToClient(clientNumber, 'Welcome %s \nXpSave: ON', clientName)
 end
 
 function et_ClientUserinfoChanged(clientNumber)

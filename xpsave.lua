@@ -1,13 +1,20 @@
 --[[
-author: https://github.com/sheldarr
-name: ETL XpSave
-version: 1.0
+    author: https://github.com/sheldarr
+    license: MIT
+    name: ETL XpSave
+    repository: https://github.com/sheldarr/etl-xpsave
+    version: 1.0
 ]]--
 
-require 'math'
-
-local MOD_NAME = 'ETL XpSave'
-local MOD_VERSION = '1.0'
+local skills = {
+    battlesense = 0,
+    engineering = 1,
+    medic = 2,
+    fieldOps = 3,
+    lightWeapons = 4,
+    heavyWeapons = 5,
+    covertOps = 6
+}
 
 function et.G_Printf(...)
     et.G_Print(string.format(...))

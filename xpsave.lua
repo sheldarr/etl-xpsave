@@ -53,6 +53,20 @@ function getPlayer(clientNumber)
     }
 end
 
+function initialize()
+    local serverOptions = getServerOptions()
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+
+    local xpSaveFile = io.open(filePath, "r")
+
+    if not xpSaveFile then
+        io.open(filePath, "w"):write(json.encode({}))
+        return
+    end
+
+    xpSaveFile:close()
+end
+
 function saveXpForAllPlayers()
     local serverOptions = getServerOptions()
 
@@ -100,10 +114,12 @@ function loadXpForPlayer(player)
     local xp = loadXpFromFile()
     local playerXp = xp[player.guid]
 
-    et.G_Printf("Loading for: %s %s\n", player.name, player.guid)
+    et.G_Printf("Loading XP for %s %s :", player.name, player.guid)
+    sendMessageToPlayer(player, "LOADING XP...")
 
     if playerXp then
-        et.G_Printf("XP FOUND\n")
+        et.G_Printf("OK\n")
+        sendMessageToPlayer(player, "^2OK\n")
 
         et.G_XP_Set (player.number, playerXp.battlesense, SKILLS.BATTLESENSE, 0)
         et.G_XP_Set (player.number, playerXp.engineering, SKILLS.ENGINEERING, 0)
@@ -112,7 +128,11 @@ function loadXpForPlayer(player)
         et.G_XP_Set (player.number, playerXp.lightWeapons, SKILLS.LIGHTWEAPONS, 0)
         et.G_XP_Set (player.number, playerXp.heavyWeapons, SKILLS.HEAVYWEAPONS, 0)
         et.G_XP_Set (player.number, playerXp.covertOps, SKILLS.COVERTOPS, 0)
+
+        return;
     end
+    et.G_Printf("FAIL\n")
+    sendMessageToPlayer(player, "^1FAIL\n")
 end
 
 function et.G_Printf(...)
@@ -126,6 +146,7 @@ end
 function et_InitGame(levelTime, randomSeed, restart)
     et.G_Printf("et_InitGame [%d] [%d] [%d]\n", levelTime, randomSeed, restart)
     et.RegisterModname(MOD_NAME)
+    initialize()
 end
 
 function et_ShutdownGame(restart)
@@ -162,9 +183,7 @@ end
 function et_ClientDisconnect(clientNumber)
     et.G_Printf( "et_ClientDisconnect: [%d]\n", clientNumber)
 
-    local player = getPlayer(clientNumber)
-
-    saveXpForPlayer(player)
+    saveXpForAllPlayers()
 end
 
 function et_ClientBegin(clientNumber)

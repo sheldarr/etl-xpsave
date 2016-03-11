@@ -6,6 +6,12 @@
     version: 1.0
 ]]--
 
+local connectionStatus = {
+    disconnected = 0,
+    connecting = 1,
+    connected = 2
+}
+
 local skills = {
     battlesense = 0,
     engineering = 1,
@@ -15,6 +21,29 @@ local skills = {
     heavyWeapons = 5,
     covertOps = 6
 }
+
+function getPlayer(clientNumber)
+    return {
+        connectionStatus = et.gentity_get(clientNumber, "pers.connected"),
+        name = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name"),
+        number = clientNumber
+    }
+end
+
+function saveXpForAllPlayers()
+    for clientNumber = 0, tonumber(et.trap_Cvar_Get("sv_maxclients")) - 1 do
+        local player = getPlayer(clientNumber);
+
+        if player.connectionStatus  == connectionStatus.connected then
+            saveXpForPlayer(player)
+        end
+    end
+end
+
+
+function saveXpForPlayer(player)
+    et.G_Printf("Saving XP for [%d] %s", player.number, player.name)
+end
 
 function et.G_Printf(...)
     et.G_Print(string.format(...))
@@ -32,6 +61,7 @@ end
 function et_RunFrame(levelTime)
     if levelTime % 1000 == 0 then
         et.G_Printf('et_RunFrame [%d]\n', levelTime)
+        saveXpForAllPlayers()
     end
 end
 

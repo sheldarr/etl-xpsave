@@ -2,16 +2,16 @@
 
 [ET: Legacy](https://github.com/etlegacy/etlegacy) script for xpsave.
 
-## Description
+### Description
 
-- xp is saves in json file which is created in ./legacy folder next to the etl-xpsave lua script
+- xp is saved in json file which is created in ./legacy folder next to the etl-xpsave lua script
 - xp is automatically saved each minute for all players (including bots)
 - xp is automatically loaded when player joins the server
 - xp is automacially saved when user disconnects the server
 
-## How To Use
+### How To Use
 
-1. Download etl-xpsave.lua script and put it in the ./legacy folder which is inside the main [ET: Legacy](https://github.com/etlegacy/etlegacy) directory.
+1. Download etl-xpsave script and put it in the ./legacy folder which is inside the main [ET: Legacy](https://github.com/etlegacy/etlegacy) directory.
 2. Download [JSON4Lua](http://json.luaforge.net/) script and put it next to etl-xpsave script.
 3. Update lua_modules variable in your server configuration file e.g.
 

@@ -6,20 +6,22 @@
     version: 1.0
 ]]--
 
-local connectionStatus = {
+local MOD_NAME = "etl-xpsave"
+
+local CONNECTIONS_STATUS = {
     disconnected = 0,
     connecting = 1,
     connected = 2
 }
 
-local skills = {
-    battlesense = 0,
-    engineering = 1,
-    medic = 2,
-    fieldOps = 3,
-    lightWeapons = 4,
-    heavyWeapons = 5,
-    covertOps = 6
+local SKILLS = {
+    BATTLESENSE = 0,
+    ENGINEERING = 1,
+    MEDIC = 2,
+    FIELDOPS = 3,
+    LIGHTWEAPONS = 4,
+    HEAVYWEAPONS = 5,
+    COVERTOPS = 6
 }
 
 function getPlayer(clientNumber)
@@ -27,7 +29,16 @@ function getPlayer(clientNumber)
         connectionStatus = et.gentity_get(clientNumber, "pers.connected"),
         guid = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "cl_guid"),
         name = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name"),
-        number = clientNumber
+        number = clientNumber,
+        skills = {
+            battlesense = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.BATTLESENSE),
+            engineering = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.ENGINEERING),
+            medic = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.MEDIC),
+            fieldOps = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.FIELDOPS),
+            lightWeapons = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.LIGHTWEAPONS),
+            heavyWeapons = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.HEAVYWEAPONS),
+            covertOps = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.COVERTOPS)
+        }
     }
 end
 
@@ -35,15 +46,21 @@ function saveXpForAllPlayers()
     for clientNumber = 0, tonumber(et.trap_Cvar_Get("sv_maxclients")) - 1 do
         local player = getPlayer(clientNumber);
 
-        if player.connectionStatus  == connectionStatus.connected then
+        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
             saveXpForPlayer(player)
         end
     end
 end
 
-
 function saveXpForPlayer(player)
-    et.G_Printf("Saving XP for [%d] %s", player.number, player.name)
+    et.G_Printf("Saving XP for %d %s\n", player.number, player.name)
+    et.G_Printf("Battlesense: %d\n", player.skills.battlesense)
+    et.G_Printf("Engineering: %d\n", player.skills.engineering)
+    et.G_Printf("Medic: %d\n", player.skills.medic)
+    et.G_Printf("FieldOps: %d\n", player.skills.fieldOps)
+    et.G_Printf("LightWeapons: %d\n", player.skills.lightWeapons)
+    et.G_Printf("HeavyWeapons: %d\n", player.skills.heavyWeapons)
+    et.G_Printf("CovertOps: %d\n", player.skills.covertOps)
 end
 
 function et.G_Printf(...)

@@ -1,8 +1,13 @@
 # etl-xpsave
 
+[ET: Legacy](https://github.com/etlegacy/etlegacy) script for xpsave.
+
 ## Description
 
-[ET: Legacy](https://github.com/etlegacy/etlegacy) script for xpsave.
+- xp is saves in json file which is created in ./legacy folder next to the etl-xpsave lua script
+- xp is automatically saved each minute for all players (including bots)
+- xp is automatically loaded when player joins the server
+- xp is automacially saved when user disconnects the server
 
 ## How To Use
 

@@ -139,13 +139,13 @@ function loadXpForPlayer(player)
         et.G_Printf("OK\n")
         sendMessageToPlayer(player, "^2OK\n")
 
-        et.G_XP_Set (player.number, tonumber(playerXp.battlesense), SKILLS.BATTLESENSE, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.engineering), SKILLS.ENGINEERING, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.medic), SKILLS.MEDIC, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.fieldOps), SKILLS.FIELDOPS, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.lightWeapons), SKILLS.LIGHTWEAPONS, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.heavyWeapons), SKILLS.HEAVYWEAPONS, 0)
-        et.G_XP_Set (player.number, tonumber(playerXp.covertOps), SKILLS.COVERTOPS, 0)
+        et.G_XP_Set (player.number, playerXp.battlesense, SKILLS.BATTLESENSE, 0)
+        et.G_XP_Set (player.number, playerXp.engineering, SKILLS.ENGINEERING, 0)
+        et.G_XP_Set (player.number, playerXp.medic, SKILLS.MEDIC, 0)
+        et.G_XP_Set (player.number, playerXp.fieldOps, SKILLS.FIELDOPS, 0)
+        et.G_XP_Set (player.number, playerXp.lightWeapons, SKILLS.LIGHTWEAPONS, 0)
+        et.G_XP_Set (player.number, playerXp.heavyWeapons, SKILLS.HEAVYWEAPONS, 0)
+        et.G_XP_Set (player.number, playerXp.covertOps, SKILLS.COVERTOPS, 0)
 
         return;
     end

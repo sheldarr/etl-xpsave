@@ -113,6 +113,10 @@ end
 
 function et_ClientDisconnect(clientNumber)
     et.G_Printf( 'et_ClientDisconnect: [%d]\n', clientNumber)
+
+    local player = getPlayer(clientNumber)
+
+    saveXpForPlayer(player)
 end
 
 function et_ClientBegin(clientNumber)

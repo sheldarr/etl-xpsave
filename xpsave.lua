@@ -10,6 +10,8 @@ local json = require('json')
 
 local MOD_NAME = "etl-xpsave"
 
+local xpSaveDelay = 60000
+
 local CONNECTIONS_STATUS = {
     disconnected = 0,
     connecting = 1,
@@ -67,6 +69,16 @@ function initialize()
     xpSaveFile:close()
 end
 
+function broadcast(message)
+    local serverOptions = getServerOptions()
+
+    for clientNumber = 0, serverOptions.maxPlayers - 1 do
+        local player = getPlayer(clientNumber);
+
+        sendMessageToPlayer(player, message)
+    end
+end
+
 function saveXpForAllPlayers()
     local serverOptions = getServerOptions()
 
@@ -103,6 +115,8 @@ function saveXpToFile(xp)
 end
 
 function saveXpForPlayer(player)
+    et.G_Printf("Saving XP for %s %s :", player.name, player.guid)
+
     local xp = loadXpFromFile()
 
     xp[player.guid] = player.skills
@@ -121,13 +135,13 @@ function loadXpForPlayer(player)
         et.G_Printf("OK\n")
         sendMessageToPlayer(player, "^2OK\n")
 
-        et.G_XP_Set (player.number, playerXp.battlesense, SKILLS.BATTLESENSE, 0)
-        et.G_XP_Set (player.number, playerXp.engineering, SKILLS.ENGINEERING, 0)
-        et.G_XP_Set (player.number, playerXp.medic, SKILLS.MEDIC, 0)
-        et.G_XP_Set (player.number, playerXp.fieldOps, SKILLS.FIELDOPS, 0)
-        et.G_XP_Set (player.number, playerXp.lightWeapons, SKILLS.LIGHTWEAPONS, 0)
-        et.G_XP_Set (player.number, playerXp.heavyWeapons, SKILLS.HEAVYWEAPONS, 0)
-        et.G_XP_Set (player.number, playerXp.covertOps, SKILLS.COVERTOPS, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.battlesense), SKILLS.BATTLESENSE, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.engineering), SKILLS.ENGINEERING, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.medic), SKILLS.MEDIC, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.fieldOps), SKILLS.FIELDOPS, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.lightWeapons), SKILLS.LIGHTWEAPONS, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.heavyWeapons), SKILLS.HEAVYWEAPONS, 0)
+        et.G_XP_Set (player.number, tonumber(playerXp.covertOps), SKILLS.COVERTOPS, 0)
 
         return;
     end
@@ -156,9 +170,8 @@ function et_ShutdownGame(restart)
 end
 
 function et_RunFrame(levelTime)
-    if levelTime % 1000 == 0 then
-        et.G_Printf("et_RunFrame [%d]\n", levelTime)
-        saveXpForAllPlayers()
+    if levelTime % xpSaveDelay == 0 then
+        broadcast("^2XP SAVED\n")
     end
 end
 

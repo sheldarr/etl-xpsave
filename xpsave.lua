@@ -10,7 +10,7 @@ local json = require('json')
 
 local MOD_NAME = "etl-xpsave"
 
-local xpSaveDelay = 60000
+local xpSaveDelay = 10000
 
 local CONNECTIONS_STATUS = {
     disconnected = 0,
@@ -28,6 +28,10 @@ local SKILLS = {
     COVERTOPS = 6
 }
 
+function round(number)
+    return math.floor(number + 0.5)
+end
+
 function getServerOptions()
     return {
         maxPlayers = tonumber(et.trap_Cvar_Get("sv_maxclients")),
@@ -44,13 +48,13 @@ function getPlayer(clientNumber)
         name = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name"),
         number = clientNumber,
         skills = {
-            battlesense = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.BATTLESENSE),
-            engineering = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.ENGINEERING),
-            medic = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.MEDIC),
-            fieldOps = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.FIELDOPS),
-            lightWeapons = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.LIGHTWEAPONS),
-            heavyWeapons = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.HEAVYWEAPONS),
-            covertOps = et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.COVERTOPS)
+            battlesense = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.BATTLESENSE)),
+            engineering = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.ENGINEERING)),
+            medic = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.MEDIC)),
+            fieldOps = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.FIELDOPS)),
+            lightWeapons = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.LIGHTWEAPONS)),
+            heavyWeapons = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.HEAVYWEAPONS)),
+            covertOps = round(et.gentity_get(clientNumber, "sess.skillpoints", SKILLS.COVERTOPS))
         }
     }
 end
@@ -115,7 +119,7 @@ function saveXpToFile(xp)
 end
 
 function saveXpForPlayer(player)
-    et.G_Printf("Saving XP for %s %s :", player.name, player.guid)
+    et.G_Printf("Saving XP for %s %s\n", player.name, player.guid)
 
     local xp = loadXpFromFile()
 
@@ -172,6 +176,7 @@ end
 function et_RunFrame(levelTime)
     if levelTime % xpSaveDelay == 0 then
         broadcast("^2XP SAVED\n")
+        saveXpForAllPlayers()
     end
 end
 

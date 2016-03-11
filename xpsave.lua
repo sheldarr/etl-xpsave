@@ -6,6 +6,8 @@
     version: 1.0
 ]]--
 
+local json = require('json')
+
 local MOD_NAME = "etl-xpsave"
 
 local CONNECTIONS_STATUS = {
@@ -28,7 +30,8 @@ function getServerOptions()
     return {
         maxPlayers = tonumber(et.trap_Cvar_Get("sv_maxclients")),
         basePath = string.gsub(et.trap_Cvar_Get("fs_basepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
-        homePath = string.gsub(et.trap_Cvar_Get("fs_homepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/")
+        homePath = string.gsub(et.trap_Cvar_Get("fs_homepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
+        xpSaveFileName = "xpsave.json"
     }
 end
 
@@ -53,10 +56,6 @@ end
 function saveXpForAllPlayers()
     local serverOptions = getServerOptions()
 
-    et.G_Printf("MaxPlayers: %d\n", serverOptions.maxPlayers)
-    et.G_Printf("BasePath: %s\n", serverOptions.basePath)
-    et.G_Printf("HomePath: %s\n", serverOptions.homePath)
-
     for clientNumber = 0, serverOptions.maxPlayers - 1 do
         local player = getPlayer(clientNumber);
 
@@ -66,25 +65,54 @@ function saveXpForAllPlayers()
     end
 end
 
+function loadXpFromFile()
+    local serverOptions = getServerOptions()
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+
+    local xpSaveFile = io.open(filePath, "r")
+
+    local encodedXp = xpSaveFile:read("*all")
+    xpSaveFile:close()
+
+    return json.decode(encodedXp)
+end
+
+function saveXpToFile(xp)
+    local serverOptions = getServerOptions()
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+    local encodedXp = json.encode(xp)
+
+    local xpSaveFile = io.open(filePath, "w")
+
+    xpSaveFile:write(encodedXp)
+    xpSaveFile:close()
+end
+
 function saveXpForPlayer(player)
-    et.G_Printf("Saving XP for %d %s\n", player.number, player.name)
-    et.G_Printf("Battlesense: %d\n", player.skills.battlesense)
-    et.G_Printf("Engineering: %d\n", player.skills.engineering)
-    et.G_Printf("Medic: %d\n", player.skills.medic)
-    et.G_Printf("FieldOps: %d\n", player.skills.fieldOps)
-    et.G_Printf("LightWeapons: %d\n", player.skills.lightWeapons)
-    et.G_Printf("HeavyWeapons: %d\n", player.skills.heavyWeapons)
-    et.G_Printf("CovertOps: %d\n", player.skills.covertOps)
+    local xp = loadXpFromFile()
+
+    xp[player.guid] = player.skills
+
+    saveXpToFile(xp)
 end
 
 function loadXpForPlayer(player)
-    et.G_XP_Set (player.number, 10.0, SKILLS.BATTLESENSE, 0)
-    et.G_XP_Set (player.number, 20.0, SKILLS.ENGINEERING, 0)
-    et.G_XP_Set (player.number, 30.0, SKILLS.MEDIC, 0)
-    et.G_XP_Set (player.number, 40.0, SKILLS.FIELDOPS, 0)
-    et.G_XP_Set (player.number, 50.0, SKILLS.LIGHTWEAPONS, 0)
-    et.G_XP_Set (player.number, 60.0, SKILLS.HEAVYWEAPONS, 0)
-    et.G_XP_Set (player.number, 70.0, SKILLS.COVERTOPS, 0)
+    local xp = loadXpFromFile()
+    local playerXp = xp[player.guid]
+
+    et.G_Printf("Loading for: %s %s\n", player.name, player.guid)
+
+    if playerXp then
+        et.G_Printf("XP FOUND\n")
+
+        et.G_XP_Set (player.number, playerXp.battlesense, SKILLS.BATTLESENSE, 0)
+        et.G_XP_Set (player.number, playerXp.engineering, SKILLS.ENGINEERING, 0)
+        et.G_XP_Set (player.number, playerXp.medic, SKILLS.MEDIC, 0)
+        et.G_XP_Set (player.number, playerXp.fieldOps, SKILLS.FIELDOPS, 0)
+        et.G_XP_Set (player.number, playerXp.lightWeapons, SKILLS.LIGHTWEAPONS, 0)
+        et.G_XP_Set (player.number, playerXp.heavyWeapons, SKILLS.HEAVYWEAPONS, 0)
+        et.G_XP_Set (player.number, playerXp.covertOps, SKILLS.COVERTOPS, 0)
+    end
 end
 
 function et.G_Printf(...)

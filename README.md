@@ -21,4 +21,4 @@
 
 4. Start your server and enjoy the game :)
 
-#### License [MIT](LICENSE.md)
+### License [MIT](LICENSE.md)

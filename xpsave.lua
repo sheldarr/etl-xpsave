@@ -24,8 +24,12 @@ local SKILLS = {
     COVERTOPS = 6
 }
 
-function getMaxPlayersNumber()
-    return tonumber(et.trap_Cvar_Get("sv_maxclients"));
+function getServerOptions()
+    return {
+        maxPlayers = tonumber(et.trap_Cvar_Get("sv_maxclients")),
+        basePath = string.gsub(et.trap_Cvar_Get("fs_basepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
+        homePath = string.gsub(et.trap_Cvar_Get("fs_homepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/")
+    }
 end
 
 function getPlayer(clientNumber)
@@ -47,7 +51,13 @@ function getPlayer(clientNumber)
 end
 
 function saveXpForAllPlayers()
-    for clientNumber = 0, getMaxPlayersNumber() - 1 do
+    local serverOptions = getServerOptions()
+
+    et.G_Printf("MaxPlayers: %d\n", serverOptions.maxPlayers)
+    et.G_Printf("BasePath: %s\n", serverOptions.basePath)
+    et.G_Printf("HomePath: %s\n", serverOptions.homePath)
+
+    for clientNumber = 0, serverOptions.maxPlayers - 1 do
         local player = getPlayer(clientNumber);
 
         if player.connectionStatus  == CONNECTIONS_STATUS.connected then
@@ -67,12 +77,22 @@ function saveXpForPlayer(player)
     et.G_Printf("CovertOps: %d\n", player.skills.covertOps)
 end
 
+function loadXpForPlayer(player)
+    et.G_XP_Set (player.number, 10.0, SKILLS.BATTLESENSE, 0)
+    et.G_XP_Set (player.number, 20.0, SKILLS.ENGINEERING, 0)
+    et.G_XP_Set (player.number, 30.0, SKILLS.MEDIC, 0)
+    et.G_XP_Set (player.number, 40.0, SKILLS.FIELDOPS, 0)
+    et.G_XP_Set (player.number, 50.0, SKILLS.LIGHTWEAPONS, 0)
+    et.G_XP_Set (player.number, 60.0, SKILLS.HEAVYWEAPONS, 0)
+    et.G_XP_Set (player.number, 70.0, SKILLS.COVERTOPS, 0)
+end
+
 function et.G_Printf(...)
     et.G_Print(string.format(...))
 end
 
-function sendMessageToClient(clientNumber, message, ...)
-    et.trap_SendServerCommand(tonumber(clientNumber), 'cpm\"' .. string.format(message, ...) .. '\n\"')
+function sendMessageToPlayer(player, message, ...)
+    et.trap_SendServerCommand(player.number, 'cpm\"' .. string.format(message, ...) .. '\n\"')
 end
 
 function et_InitGame(levelTime, randomSeed, restart)
@@ -120,10 +140,12 @@ function et_ClientDisconnect(clientNumber)
 end
 
 function et_ClientBegin(clientNumber)
-    local clientName = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name")
+    local player = getPlayer(clientNumber)
 
-    et.G_Printf( 'et_ClientBegin: [%d] %s\n', clientNumber, clientName)
-    sendMessageToClient(clientNumber, 'Welcome %s \nXpSave: ON', clientName)
+    et.G_Printf( 'et_ClientBegin: [%d] %s\n', clientNumber, player.name)
+    sendMessageToPlayer(player, 'Welcome %s \n', player.name)
+
+    loadXpForPlayer(player)
 end
 
 function et_ClientUserinfoChanged(clientNumber)

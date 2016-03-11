@@ -25,6 +25,7 @@ local skills = {
 function getPlayer(clientNumber)
     return {
         connectionStatus = et.gentity_get(clientNumber, "pers.connected"),
+        guid = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "cl_guid"),
         name = et.Info_ValueForKey(et.trap_GetUserinfo(clientNumber), "name"),
         number = clientNumber
     }

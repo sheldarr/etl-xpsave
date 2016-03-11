@@ -10,7 +10,7 @@ local json = require('json')
 
 local MOD_NAME = "etl-xpsave"
 
-local xpSaveDelay = 10000
+local xpSaveDelay = 60000
 
 local CONNECTIONS_STATUS = {
     disconnected = 0,

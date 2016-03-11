@@ -1,7 +1,7 @@
 --[[
     author: https://github.com/sheldarr
     license: MIT
-    name: ETL XpSave
+    name: etl-xpsave
     repository: https://github.com/sheldarr/etl-xpsave
     version: 1.0
 ]]--

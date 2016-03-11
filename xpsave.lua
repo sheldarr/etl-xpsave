@@ -24,6 +24,10 @@ local SKILLS = {
     COVERTOPS = 6
 }
 
+function getMaxPlayersNumber()
+    return tonumber(et.trap_Cvar_Get("sv_maxclients"));
+end
+
 function getPlayer(clientNumber)
     return {
         connectionStatus = et.gentity_get(clientNumber, "pers.connected"),
@@ -43,7 +47,7 @@ function getPlayer(clientNumber)
 end
 
 function saveXpForAllPlayers()
-    for clientNumber = 0, tonumber(et.trap_Cvar_Get("sv_maxclients")) - 1 do
+    for clientNumber = 0, getMaxPlayersNumber() - 1 do
         local player = getPlayer(clientNumber);
 
         if player.connectionStatus  == CONNECTIONS_STATUS.connected then
@@ -74,6 +78,12 @@ end
 function et_InitGame(levelTime, randomSeed, restart)
     et.G_Printf('et_InitGame [%d] [%d] [%d]\n', levelTime, randomSeed, restart)
     et.RegisterModname(MOD_NAME)
+end
+
+function et_ShutdownGame(restart)
+    et.G_Printf('et_ShutdownGame [%s]\n', restart)
+
+    saveXpForAllPlayers()
 end
 
 function et_RunFrame(levelTime)

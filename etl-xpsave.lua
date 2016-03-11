@@ -1,12 +1,12 @@
 --[[
     author: https://github.com/sheldarr
     license: MIT
-    name: etl-xpsave
+    name: ETL XpSave
     repository: https://github.com/sheldarr/etl-xpsave
-    version: 1.0
+    version: 1.1
 ]]--
 
-local json = require('json')
+local json = require('dkjson')
 
 local MOD_NAME = "etl-xpsave"
 
@@ -110,7 +110,7 @@ end
 function saveXpToFile(xp)
     local serverOptions = getServerOptions()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
-    local encodedXp = json.encode(xp)
+    local encodedXp = json.encode(xp, {indent = true})
 
     local xpSaveFile = io.open(filePath, "w")
 

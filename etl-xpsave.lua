@@ -3,14 +3,13 @@
     license: MIT
     name: ETL XpSave
     repository: https://github.com/sheldarr/etl-xpsave
-    version: 1.1
+    version: 1.2
 ]]--
 
 local json = require('dkjson')
 
 local MOD_NAME = "etl-xpsave"
 
-local xpSaveDelay = 60000
 
 local CONNECTIONS_STATUS = {
     disconnected = 0,
@@ -28,17 +27,16 @@ local SKILLS = {
     COVERTOPS = 6
 }
 
+serverOptions = {
+    maxPlayers = tonumber(et.trap_Cvar_Get("sv_maxclients")),
+    basePath = string.gsub(et.trap_Cvar_Get("fs_basepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
+    homePath = string.gsub(et.trap_Cvar_Get("fs_homepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
+    xpSaveDelay = 60000,
+    xpSaveFileName = "xpsave.json"
+}
+
 function round(number)
     return math.floor(number + 0.5)
-end
-
-function getServerOptions()
-    return {
-        maxPlayers = tonumber(et.trap_Cvar_Get("sv_maxclients")),
-        basePath = string.gsub(et.trap_Cvar_Get("fs_basepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
-        homePath = string.gsub(et.trap_Cvar_Get("fs_homepath") .. "/" .. et.trap_Cvar_Get("fs_game") .. "/","\\","/"),
-        xpSaveFileName = "xpsave.json"
-    }
 end
 
 function getPlayer(clientNumber)
@@ -60,7 +58,6 @@ function getPlayer(clientNumber)
 end
 
 function initialize()
-    local serverOptions = getServerOptions()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
 
     local xpSaveFile = io.open(filePath, "r")
@@ -74,8 +71,6 @@ function initialize()
 end
 
 function broadcast(message)
-    local serverOptions = getServerOptions()
-
     for clientNumber = 0, serverOptions.maxPlayers - 1 do
         local player = getPlayer(clientNumber);
 
@@ -84,8 +79,6 @@ function broadcast(message)
 end
 
 function saveXpForAllPlayers()
-    local serverOptions = getServerOptions()
-
     for clientNumber = 0, serverOptions.maxPlayers - 1 do
         local player = getPlayer(clientNumber);
 
@@ -96,7 +89,6 @@ function saveXpForAllPlayers()
 end
 
 function loadXpFromFile()
-    local serverOptions = getServerOptions()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
 
     local xpSaveFile = io.open(filePath, "r")
@@ -108,7 +100,6 @@ function loadXpFromFile()
 end
 
 function saveXpToFile(xp)
-    local serverOptions = getServerOptions()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
     local encodedXp = json.encode(xp, {indent = true})
 
@@ -174,7 +165,7 @@ function et_ShutdownGame(restart)
 end
 
 function et_RunFrame(levelTime)
-    if levelTime % xpSaveDelay == 0 then
+    if levelTime % serverOptions.xpSaveDelay == 0 then
         broadcast("^2XP SAVED\n")
         saveXpForAllPlayers()
     end

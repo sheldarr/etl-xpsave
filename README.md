@@ -9,7 +9,7 @@
 - xp is automatically loaded when player joins the server
 - xp is automacially saved when user disconnects the server
 
-### How To Use
+### Installation
 
 1. Download etl-xpsave script and put it in the ./legacy folder which is inside the main [ET: Legacy](https://github.com/etlegacy/etlegacy) directory.
 2. Download [dkjson](http://dkolf.de/src/dkjson-lua.fsl/home) script and put it next to etl-xpsave script.
@@ -20,5 +20,17 @@
     ```
 
 4. Start your server and enjoy the game :)
+
+### Available commands
+
+- savexp - saves xp for all currently connected players (and bots)
+- loadxp - loads xp for all currently conencted players (and bots)
+- resetxp - resets xp for all players (and bots)
+
+You can use these commands directly in server console or in client console via rcon e.g.
+
+    ```bash
+    /rcon {password} {command}
+    ```
 
 ### License [MIT](LICENSE.md)

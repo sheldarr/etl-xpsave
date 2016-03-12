@@ -13,6 +13,7 @@ local MOD_NAME = "etl-xpsave"
 local CONSOLE_COMMANDS = {
     LOAD_XP = "loadxp",
     SAVE_XP = "savexp",
+    RESET_XP = "resetxp"
 }
 
 local CONNECTIONS_STATUS = {
@@ -67,8 +68,8 @@ function initialize()
     local xpSaveFile = io.open(filePath, "r")
 
     if not xpSaveFile then
-        io.open(filePath, "w"):write(json.encode({}))
-        return
+        xpSaveFile = io.open(filePath, "w")
+        xpSaveFile:write(json.encode({}))
     end
 
     xpSaveFile:close()
@@ -82,6 +83,14 @@ function broadcast(message)
     end
 end
 
+function resetXpForAllPlayers()
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+    local xpSaveFile = io.open(filePath, "w")
+
+    xpSaveFile:write(json.encode({}))
+    xpSaveFile:close()
+end
+
 function loadXpForAllPlayers()
     for clientNumber = 0, serverOptions.maxPlayers - 1 do
         local player = getPlayer(clientNumber);
@@ -90,47 +99,6 @@ function loadXpForAllPlayers()
             loadXpForPlayer(player)
         end
     end
-end
-
-function saveXpForAllPlayers()
-    for clientNumber = 0, serverOptions.maxPlayers - 1 do
-        local player = getPlayer(clientNumber);
-
-        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
-            saveXpForPlayer(player)
-        end
-    end
-end
-
-function loadXpFromFile()
-    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
-
-    local xpSaveFile = io.open(filePath, "r")
-
-    local encodedXp = xpSaveFile:read("*all")
-    xpSaveFile:close()
-
-    return json.decode(encodedXp)
-end
-
-function saveXpToFile(xp)
-    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
-    local encodedXp = json.encode(xp, {indent = true})
-
-    local xpSaveFile = io.open(filePath, "w")
-
-    xpSaveFile:write(encodedXp)
-    xpSaveFile:close()
-end
-
-function saveXpForPlayer(player)
-    et.G_Printf("Saving XP for %s %s\n", player.name, player.guid)
-
-    local xp = loadXpFromFile()
-
-    xp[player.guid] = player.skills
-
-    saveXpToFile(xp)
 end
 
 function loadXpForPlayer(player)
@@ -156,6 +124,47 @@ function loadXpForPlayer(player)
     end
     et.G_Printf("FAIL\n")
     sendMessageToPlayer(player, "^1FAIL\n")
+end
+
+function saveXpForAllPlayers()
+    for clientNumber = 0, serverOptions.maxPlayers - 1 do
+        local player = getPlayer(clientNumber);
+
+        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
+            saveXpForPlayer(player)
+        end
+    end
+end
+
+function saveXpForPlayer(player)
+    et.G_Printf("Saving XP for %s %s\n", player.name, player.guid)
+
+    local xp = loadXpFromFile()
+
+    xp[player.guid] = player.skills
+
+    saveXpToFile(xp)
+end
+
+function loadXpFromFile()
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+
+    local xpSaveFile = io.open(filePath, "r")
+
+    local encodedXp = xpSaveFile:read("*all")
+    xpSaveFile:close()
+
+    return json.decode(encodedXp)
+end
+
+function saveXpToFile(xp)
+    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
+    local encodedXp = json.encode(xp, {indent = true})
+
+    local xpSaveFile = io.open(filePath, "w")
+
+    xpSaveFile:write(encodedXp)
+    xpSaveFile:close()
 end
 
 function et.G_Printf(...)
@@ -204,6 +213,11 @@ function et_ConsoleCommand()
 
     if (command == CONSOLE_COMMANDS.SAVE_XP) then
         saveXpForAllPlayers()
+        return 1
+    end
+
+    if (command == CONSOLE_COMMANDS.RESET_XP) then
+        resetXpForAllPlayers()
         return 1
     end
 

@@ -10,6 +10,10 @@ local json = require('dkjson')
 
 local MOD_NAME = "etl-xpsave"
 
+local CONSOLE_COMMANDS = {
+    LOAD_XP = "loadxp",
+    SAVE_XP = "savexp",
+}
 
 local CONNECTIONS_STATUS = {
     disconnected = 0,
@@ -75,6 +79,16 @@ function broadcast(message)
         local player = getPlayer(clientNumber);
 
         sendMessageToPlayer(player, message)
+    end
+end
+
+function loadXpForAllPlayers()
+    for clientNumber = 0, serverOptions.maxPlayers - 1 do
+        local player = getPlayer(clientNumber);
+
+        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
+            loadXpForPlayer(player)
+        end
     end
 end
 
@@ -180,6 +194,19 @@ end
 -- return 1 if intercepted, 0 if passthrough
 function et_ConsoleCommand()
     et.G_Printf("et_ConsoleCommand: [%s] [%s]\n", et.trap_Argc(), et.trap_Argv(0))
+
+    local command = string.lower(et.trap_Argv(0))
+
+    if (command == CONSOLE_COMMANDS.LOAD_XP) then
+        loadXpForAllPlayers()
+        return 1
+    end
+
+    if (command == CONSOLE_COMMANDS.SAVE_XP) then
+        saveXpForAllPlayers()
+        return 1
+    end
+
     return 0
  end
 

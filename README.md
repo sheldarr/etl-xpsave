@@ -15,9 +15,7 @@
 2. Download [dkjson](http://dkolf.de/src/dkjson-lua.fsl/home) script and put it next to etl-xpsave script.
 3. Update lua_modules variable in your server configuration file e.g.
 
-    ```bash
     set lua_modules "etl-xpsave.lua"
-    ```
 
 4. Start your server and enjoy the game :)
 

@@ -29,8 +29,6 @@
 
 You can use these commands directly in server console or in client console via rcon e.g.
 
-    ```bash
     /rcon {password} {command}
-    ```
 
 ### License [MIT](LICENSE.md)

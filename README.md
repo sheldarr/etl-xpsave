@@ -1,6 +1,6 @@
 # etl-xpsave
 
-[ET: Legacy](https://github.com/etlegacy/etlegacy) script for xpsave.
+[ET: Legacy](https://github.com/etlegacy/etlegacy) server script for xpsave.
 
 ### Description
 
@@ -11,13 +11,12 @@
 
 ### Installation
 
-1. Download etl-xpsave script and put it in the ./legacy folder which is inside the main [ET: Legacy](https://github.com/etlegacy/etlegacy) directory.
-2. Download [dkjson](http://dkolf.de/src/dkjson-lua.fsl/home) script and put it next to etl-xpsave script.
-3. Update lua_modules variable in your server configuration file e.g.
+1. Download etl-xpsave and [dkjson](http://dkolf.de/src/dkjson-lua.fsl/home) scripts and put them in the ./legacy folder which is inside the main [ET: Legacy](https://github.com/etlegacy/etlegacy) directory.
+2. Update lua_modules variable in your server configuration file e.g.
 
     /set lua_modules "etl-xpsave.lua"
 
-4. Start your server and enjoy the game :)
+3. Start your server and enjoy the game :)
 
 ### Available commands
 

@@ -62,17 +62,25 @@ function getPlayer(clientNumber)
     }
 end
 
-function initialize()
+function createXpSaveFileIfNotExist()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
-
     local xpSaveFile = io.open(filePath, "r")
 
+    et.G_Printf("Checking if XPSave file exists... ")
+
     if not xpSaveFile then
+        et.G_Printf("FAIL\n")
+        et.G_Printf("Creating XPSave file... ")
         xpSaveFile = io.open(filePath, "w")
         xpSaveFile:write(json.encode({}))
     end
 
     xpSaveFile:close()
+    et.G_Printf("OK\n")
+end
+
+function initialize()
+    createXpSaveFileIfNotExist();
 end
 
 function broadcast(message)

@@ -91,12 +91,28 @@ function broadcast(message)
     end
 end
 
-function resetXpForAllPlayers()
-    local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
-    local xpSaveFile = io.open(filePath, "w")
+function getAllPlayers()
+    local players = {}
 
-    xpSaveFile:write(json.encode({}))
-    xpSaveFile:close()
+    for clientNumber = 0, serverOptions.maxPlayers - 1 do
+        local player = getPlayer(clientNumber);
+
+        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
+            table.insert(players, player)
+        end
+    end
+
+    return players
+end
+
+function resetXpForAllPlayers()
+    local players = getAllPlayers()
+
+    for index, player in ipairs(players)
+    do
+        et.G_Printf("Resetting XP for player %s", player.name)
+        et.G_ResetXP(player.number)
+    end
 end
 
 function loadXpForAllPlayers()

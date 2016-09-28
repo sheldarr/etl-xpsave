@@ -62,7 +62,7 @@ function getPlayer(clientNumber)
     }
 end
 
-function createXpSaveFileIfNotExist()
+function initialize()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
     local xpSaveFile = io.open(filePath, "r")
 
@@ -75,10 +75,6 @@ function createXpSaveFileIfNotExist()
     end
 
     xpSaveFile:close()
-end
-
-function initialize()
-    createXpSaveFileIfNotExist();
 end
 
 function broadcast(message)
@@ -110,7 +106,8 @@ function resetXpForAllPlayers()
     for index, player in ipairs(players)
     do
         et.G_Printf("Resetting XP for player %s\n", player.name)
-        sendMessageToPlayer(player, "RESETTING XP...^2OK\n")
+        sendMessageToPlayer(player, "RESETTING XP...\n")
+        sendMessageToPlayer(player, "^2OK\n")
 
         et.G_ResetXP(player.number)
     end
@@ -130,10 +127,12 @@ function loadXpForPlayer(player)
     local playerXp = xp[player.guid]
 
     et.G_Printf("Loading XP for %s %s\n", player.name, player.guid)
-    sendMessageToPlayer(player, "LOADING XP...")
+    sendMessageToPlayer(player, "LOADING XP...\n")
 
     if playerXp then
-        et.G_Printf("OK\n")
+        et.G_Printf("BATTLESENSE %d ENGINEERING %d MEDIC %d FIELDOPS %d LIGHTWEAPONS %d HEAVYWEAPONS %d COVERTOPS %d\n",
+            playerXp.battlesense, playerXp.engineering, playerXp.medic, playerXp.fieldOps, playerXp.lightWeapons,
+            playerXp.heavyWeapons, playerXp.covertOps)
         sendMessageToPlayer(player, "^2OK\n")
 
         et.G_XP_Set (player.number, playerXp.battlesense, SKILLS.BATTLESENSE, 0)
@@ -143,10 +142,8 @@ function loadXpForPlayer(player)
         et.G_XP_Set (player.number, playerXp.lightWeapons, SKILLS.LIGHTWEAPONS, 0)
         et.G_XP_Set (player.number, playerXp.heavyWeapons, SKILLS.HEAVYWEAPONS, 0)
         et.G_XP_Set (player.number, playerXp.covertOps, SKILLS.COVERTOPS, 0)
-
         return;
     end
-    et.G_Printf("FAIL\n")
     sendMessageToPlayer(player, "^1FAIL\n")
 end
 
@@ -162,6 +159,11 @@ end
 
 function saveXpForPlayer(player)
     et.G_Printf("Saving XP for %s %s\n", player.name, player.guid)
+    et.G_Printf("BATTLESENSE %d ENGINEERING %d MEDIC %d FIELDOPS %d LIGHTWEAPONS %d HEAVYWEAPONS %d COVERTOPS %d\n",
+        player.skills.battlesense, player.skills.engineering, player.skills.medic, player.skills.fieldOps, player.skills.lightWeapons,
+        player.skills.heavyWeapons, player.skills.covertOps)
+    sendMessageToPlayer(player, "SAVING XP...\n")
+    sendMessageToPlayer(player, "^2OK\n")
 
     local xp = loadXpFromFile()
 
@@ -246,12 +248,6 @@ function et_ConsoleCommand()
     end
 
     return 0
- end
-
-function et_ClientConnect(clientNumber, firstTime, isBot)
-    et.G_Printf( "et_ClientConnect: [%d] [%d] [%d]\n", clientNumber, firstTime, isBot)
-
-    return nil
 end
 
 function et_ClientDisconnect(clientNumber)
@@ -270,6 +266,3 @@ function et_ClientBegin(clientNumber)
     saveXpForPlayer(player)
 end
 
-function et_ClientUserinfoChanged(clientNumber)
-       et.G_Printf( "et_ClientUserinfoChanged: [%d] = [%s]\n", clientNumber, et.trap_GetUserinfo(clientNumber))
-end

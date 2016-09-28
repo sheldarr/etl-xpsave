@@ -66,17 +66,15 @@ function createXpSaveFileIfNotExist()
     local filePath = serverOptions.basePath .. serverOptions.xpSaveFileName
     local xpSaveFile = io.open(filePath, "r")
 
-    et.G_Printf("Checking if XPSave file exists... ")
+    et.G_Printf("Checking if XPSave file exists... \n")
 
     if not xpSaveFile then
-        et.G_Printf("FAIL\n")
-        et.G_Printf("Creating XPSave file... ")
+        et.G_Printf("Creating XPSave file... \n")
         xpSaveFile = io.open(filePath, "w")
         xpSaveFile:write(json.encode({}))
     end
 
     xpSaveFile:close()
-    et.G_Printf("OK\n")
 end
 
 function initialize()
@@ -84,9 +82,10 @@ function initialize()
 end
 
 function broadcast(message)
-    for clientNumber = 0, serverOptions.maxPlayers - 1 do
-        local player = getPlayer(clientNumber);
+    local players = getAllPlayers()
 
+    for index, player in ipairs(players)
+    do
         sendMessageToPlayer(player, message)
     end
 end
@@ -110,18 +109,19 @@ function resetXpForAllPlayers()
 
     for index, player in ipairs(players)
     do
-        et.G_Printf("Resetting XP for player %s", player.name)
+        et.G_Printf("Resetting XP for player %s\n", player.name)
+        sendMessageToPlayer(player, "RESETTING XP...^2OK\n")
+
         et.G_ResetXP(player.number)
     end
 end
 
 function loadXpForAllPlayers()
-    for clientNumber = 0, serverOptions.maxPlayers - 1 do
-        local player = getPlayer(clientNumber);
+    local players = getAllPlayers()
 
-        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
-            loadXpForPlayer(player)
-        end
+    for index, player in ipairs(players)
+    do
+        loadXpForPlayer(player)
     end
 end
 
@@ -129,7 +129,7 @@ function loadXpForPlayer(player)
     local xp = loadXpFromFile()
     local playerXp = xp[player.guid]
 
-    et.G_Printf("Loading XP for %s %s :", player.name, player.guid)
+    et.G_Printf("Loading XP for %s %s\n", player.name, player.guid)
     sendMessageToPlayer(player, "LOADING XP...")
 
     if playerXp then
@@ -151,12 +151,12 @@ function loadXpForPlayer(player)
 end
 
 function saveXpForAllPlayers()
-    for clientNumber = 0, serverOptions.maxPlayers - 1 do
-        local player = getPlayer(clientNumber);
+    local players = getAllPlayers()
 
-        if player.connectionStatus  == CONNECTIONS_STATUS.connected then
-            saveXpForPlayer(player)
-        end
+    for index, player in ipairs(players)
+    do
+        et.G_Printf("Resetting XP for player %s\n", player.name)
+        saveXpForPlayer(player)
     end
 end
 
@@ -267,6 +267,7 @@ function et_ClientBegin(clientNumber)
     sendMessageToPlayer(player, "Welcome %s \n", player.name)
 
     loadXpForPlayer(player)
+    saveXpForPlayer(player)
 end
 
 function et_ClientUserinfoChanged(clientNumber)
